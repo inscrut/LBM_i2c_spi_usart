@@ -7,17 +7,37 @@
 
 #include <avr/io.h>
 #include "mega_twi.h"
+#include "EEPROM_Ext.h"
 
 #define IIC_1_ADDR 0x00
 #define IIC_2_ADDR 0x04
+
+uint8_t buf[] = {'H','e','l','l','o'};
+
+uint8_t rbuf[5] = {0};
 
 int main(void)
 {
 	TWI_Init();
 	
-	TWI_StartCnd();
-	TWI_SendByte(TWI_GetAddr(IIC_1_ADDR, 0x00));
-	TWI_StopCnd();
+	//Write
+	
+	EE_InitMasterWrite(IIC_1_ADDR, 0x00, 0x00);
+	for(uint8_t i=0; i<5; i++){
+		if(EE_WriteByte(buf[i]) != 0x00) break;
+	}
+	EE_Stop();
+	
+	//Read
+	
+	EE_InitMasterRead(IIC_1_ADDR, 0x00, 0x00);
+	for (uint8_t i=0; i<5-1; i++)
+	{
+		rbuf[i] = EE_ReadByte();
+		if(EE_ReadStatus() == 0x01) break;
+	}
+	rbuf[4] = EE_ReadLastByte();
+	EE_Stop();
 	
     /* Replace with your application code */
     while (1) 

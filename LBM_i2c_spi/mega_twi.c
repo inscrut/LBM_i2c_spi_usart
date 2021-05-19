@@ -26,6 +26,20 @@ void TWI_SendByte(uint8_t _byte){
 	while(!(TWCR & (1 << TWINT))); //wait
 }
 
+void TWI_ReadByte(){
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); //start receive byte
+	while(!(TWCR & (1 << TWINT))); //wait
+}
+
+void TWI_ReadLastByte(){
+	TWCR = (1 << TWINT) | (1 << TWEN); //start receive byte
+	while(!(TWCR & (1 << TWINT))); //wait
+}
+
+uint8_t TWI_GetReadByte(){
+	return TWDR;
+}
+
 uint8_t TWI_GetAddr(uint8_t _addr, uint8_t _wr){ //0x00 - write, 0x01 - read
 	return (0x00 | (_addr << 5) | _wr);
 }
