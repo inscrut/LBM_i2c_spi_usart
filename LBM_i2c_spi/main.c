@@ -8,6 +8,8 @@
 #include <avr/io.h>
 #include "mega_twi.h"
 #include "EEPROM_Ext.h"
+#include "usart.h"
+#include "SPI.h"
 
 #define IIC_1_ADDR 0x00
 #define IIC_2_ADDR 0x04
@@ -18,6 +20,9 @@ uint8_t rbuf[5] = {0};
 
 int main(void)
 {
+	
+	
+	/*
 	TWI_Init();
 	
 	//Write
@@ -38,6 +43,7 @@ int main(void)
 	}
 	rbuf[4] = EE_ReadLastByte();
 	EE_Stop();
+	*/
 	
     /* Replace with your application code */
     while (1) 
