@@ -40,6 +40,6 @@ uint8_t TWI_GetReadByte(){
 	return TWDR;
 }
 
-uint8_t TWI_GetAddr(uint8_t _addr, uint8_t _wr){ //0x00 - write, 0x01 - read
-	return (0x00 | (_addr << 5) | _wr);
+uint8_t TWI_GetAddr(uint8_t _addr, uint8_t _wr){ //_wr = 0x00 - write, 0x01 - read
+	return (_addr | _wr);
 }
