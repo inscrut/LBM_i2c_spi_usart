@@ -22,7 +22,7 @@ int main(void)
 	
 	//Write
 	
-	EE_InitMasterWrite(IIC_1_ADDR, 0x00, 0x00);
+	EE_InitMasterWrite(IIC_2_ADDR, 0x00, 0x00);
 	for(uint8_t i=0; i<5; i++){
 		if(EE_WriteByte(buf[i]) != 0x00) break;
 	}
@@ -30,7 +30,7 @@ int main(void)
 	
 	//Read
 	
-	EE_InitMasterRead(IIC_1_ADDR, 0x00, 0x00);
+	EE_InitMasterRead(IIC_2_ADDR, 0x00, 0x00);
 	for (uint8_t i=0; i<5-1; i++)
 	{
 		rbuf[i] = EE_ReadByte();
