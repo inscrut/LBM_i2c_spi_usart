@@ -11,8 +11,8 @@
 
 #include "mega_twi.h"
 
-void EE_InitMasterWrite(uint8_t _slave_addr, uint8_t _mbr, uint8_t _lbr); // Init for write
-void EE_InitMasterRead(uint8_t _slave_addr, uint8_t _mbr, uint8_t _lbr); // Init for read
+void EE_InitMasterWrite(uint8_t _slave_addr, uint8_t _paddr); // Init for write
+void EE_InitMasterReadPage(uint8_t _slave_addr); // Init for read
 void EE_Stop(); // Stop connect
 
 uint8_t EE_WriteByte(uint8_t _byte); // Write byte on EEPROM

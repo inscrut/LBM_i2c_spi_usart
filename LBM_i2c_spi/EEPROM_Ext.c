@@ -9,20 +9,14 @@
 
 uint8_t mng_err = 0x00;
 
-void EE_InitMasterWrite(uint8_t _slave_addr, uint8_t _mbr, uint8_t _lbr){
-	uint8_t _addr = TWI_GetAddr(_slave_addr, 0x00);
-	TWI_StartCnd(); // start cond
-	TWI_SendByte(_addr); //slave, write
-	TWI_SendByte(_mbr); //MBR of address
-	//TWI_SendByte(_lbr); //LBR of address EEPROM
-}
-
-void EE_InitMasterRead(uint8_t _slave_addr, uint8_t _mbr, uint8_t _lbr){
+void EE_InitMasterWrite(uint8_t _slave_addr, uint8_t _paddr){
 	TWI_StartCnd(); // start cond
 	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x00)); //slave, write
-	TWI_SendByte(_mbr); //MBR of address
-	//TWI_SendByte(_lbr); //LBR of address EEPROM
-	TWI_StartCnd();
+	TWI_SendByte(_paddr); //Page address
+}
+
+void EE_InitMasterReadPage(uint8_t _slave_addr){
+	TWI_StartCnd(); // start cond
 	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x01)); //slave, read
 }
 

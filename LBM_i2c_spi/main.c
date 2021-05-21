@@ -17,6 +17,8 @@
 uint8_t buf[] = {'H','e','l','l','o'};
 
 uint8_t rbuf[5] = {0};
+	
+uint8_t m_error = 0x00;
 
 int main(void)
 {
@@ -25,31 +27,50 @@ int main(void)
 	
 	//Write
 	
-	EE_ByteWrite(IIC_1_ADDR, 0x00, 'K');
+	EE_InitMasterWrite(IIC_2_ADDR, 0x00);
+	for(uint8_t i=0; i<5; i++){
+		if(EE_WriteByte(buf[i]) != 0x00) {
+			m_error = 0x01;
+			break;
+		}
+	}
+	EE_Stop();
+	
+	if(m_error != 0x00){
+		//error
+		
+		m_error = 0x00;
+	}
+	
+	//EE_ByteWrite(IIC_1_ADDR, 0x00, 'K');
 	
 	for (uint16_t i=0; i<55000; i++) __asm__ __volatile__ ("nop"); //synhro
 	__asm__ __volatile__ ("nop");
-	/*
-	EE_InitMasterWrite(IIC_2_ADDR, 0x00, 0x00);
-	for(uint8_t i=0; i<5; i++){
-		if(EE_WriteByte(buf[i]) != 0x00) break;
-	}
-	EE_Stop();*/
+	
 	
 	//Read
 	
-	rbuf[0] = EE_RandomRead(IIC_1_ADDR, 0x00);
+	//rbuf[0] = EE_RandomRead(IIC_1_ADDR, 0x00); //one byte
 	
-	/*
-	EE_InitMasterRead(IIC_2_ADDR, 0x00, 0x00);
-	for (uint8_t i=0; i<5-1; i++)
+	rbuf[0] = EE_RandomRead(IIC_2_ADDR, 0x00); //first byte, set origin address
+	EE_InitMasterReadPage(IIC_2_ADDR);
+	for (uint8_t i=1; i<5-1; i++)
 	{
 		rbuf[i] = EE_ReadByte();
-		if(EE_ReadStatus() == 0x01) break;
+		if(EE_ReadStatus() == 0x01) {
+			m_error = 0x01;
+			break;
+		}
 	}
-	rbuf[4] = EE_ReadLastByte();
-	EE_Stop();*/
-	
+	if(m_error != 0x00){
+		EE_Stop();
+		m_error = 0x00;
+	}
+	else{
+		rbuf[4] = EE_ReadLastByte();
+		EE_Stop();
+	}
+
     /* Replace with your application code */
     while (1) 
     {
