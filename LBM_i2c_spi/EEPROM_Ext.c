@@ -10,17 +10,18 @@
 uint8_t mng_err = 0x00;
 
 void EE_InitMasterWrite(uint8_t _slave_addr, uint8_t _mbr, uint8_t _lbr){
+	uint8_t _addr = TWI_GetAddr(_slave_addr, 0x00);
 	TWI_StartCnd(); // start cond
-	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x00)); //slave, write
+	TWI_SendByte(_addr); //slave, write
 	TWI_SendByte(_mbr); //MBR of address
-	TWI_SendByte(_lbr); //LBR of address EEPROM
+	//TWI_SendByte(_lbr); //LBR of address EEPROM
 }
 
 void EE_InitMasterRead(uint8_t _slave_addr, uint8_t _mbr, uint8_t _lbr){
 	TWI_StartCnd(); // start cond
 	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x00)); //slave, write
 	TWI_SendByte(_mbr); //MBR of address
-	TWI_SendByte(_lbr); //LBR of address EEPROM
+	//TWI_SendByte(_lbr); //LBR of address EEPROM
 	TWI_StartCnd();
 	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x01)); //slave, read
 }
@@ -51,6 +52,27 @@ uint8_t EE_ReadLastByte(){
 		return 0xFF;
 	}
 	return TWI_GetReadByte();
+}
+
+uint8_t EE_RandomRead(uint8_t _slave_addr, uint8_t _wordpage){
+	uint8_t _d = 0xFF;
+	TWI_StartCnd(); // start cond
+	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x00)); //slave, write
+	TWI_SendByte(_wordpage); //MBR of address
+	//TWI_SendByte(_lbr); //LBR of address EEPROM
+	TWI_StartCnd();
+	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x01)); //slave, read
+	_d = EE_ReadLastByte();
+	EE_Stop();
+	return _d;
+}
+
+void EE_ByteWrite(uint8_t _slave_addr, uint8_t _wordpage, uint8_t _data){
+	TWI_StartCnd(); // start cond
+	TWI_SendByte(TWI_GetAddr(_slave_addr, 0x00)); //slave, write
+	TWI_SendByte(_wordpage); //Address
+	TWI_SendByte(_data); //DATA
+	EE_Stop();
 }
 
 uint8_t EE_ReadStatus(){

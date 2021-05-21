@@ -17,7 +17,8 @@ void TWI_StartCnd(){
 }
 
 void TWI_StopCnd(){
-	TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN); // stop
+	//TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN); // stop
+	TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO);
 }
 
 void TWI_SendByte(uint8_t _byte){

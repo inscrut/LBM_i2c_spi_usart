@@ -25,14 +25,22 @@ int main(void)
 	
 	//Write
 	
+	EE_ByteWrite(IIC_1_ADDR, 0x00, 'K');
+	
+	for (uint16_t i=0; i<55000; i++) __asm__ __volatile__ ("nop"); //synhro
+	__asm__ __volatile__ ("nop");
+	/*
 	EE_InitMasterWrite(IIC_2_ADDR, 0x00, 0x00);
 	for(uint8_t i=0; i<5; i++){
 		if(EE_WriteByte(buf[i]) != 0x00) break;
 	}
-	EE_Stop();
+	EE_Stop();*/
 	
 	//Read
 	
+	rbuf[0] = EE_RandomRead(IIC_1_ADDR, 0x00);
+	
+	/*
 	EE_InitMasterRead(IIC_2_ADDR, 0x00, 0x00);
 	for (uint8_t i=0; i<5-1; i++)
 	{
@@ -40,11 +48,12 @@ int main(void)
 		if(EE_ReadStatus() == 0x01) break;
 	}
 	rbuf[4] = EE_ReadLastByte();
-	EE_Stop();
+	EE_Stop();*/
 	
     /* Replace with your application code */
     while (1) 
     {
+		__asm__ __volatile__ ("nop");
     }
 }
 
