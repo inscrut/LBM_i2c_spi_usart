@@ -21,15 +21,22 @@ void SPI_MasterTransmit(uint8_t _cData)
 	/* Wait for transmission complete */
 	while(!(SPSR & (1<<SPIF)));
 }
+uint8_t SPI_MasterReceive(){
+	// transmit dummy byte, for CLK generation, mosi high
+	SPDR = 0xFF;
+	// Wait for reception complete
+	while(!(SPSR & (1<<SPIF)));
+	// return Data Register
+	return SPDR;
+}
 
 void SPI_SlaveInit()
 {
-	/* Set MISO output, all others input */
 	DDR_SPI = (1<<DD_MISO);
 	/* Enable SPI */
 	SPCR = (1<<SPE);
 }
-char SPI_SlaveReceive()
+uint8_t SPI_SlaveReceive()
 {
 	/* Wait for reception complete */
 	while(!(SPSR & (1<<SPIF)));

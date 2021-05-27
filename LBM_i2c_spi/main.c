@@ -11,65 +11,77 @@
 #include "usart.h"
 #include "SPI.h"
 
-#define IIC_1_ADDR 0b10100000 //1010 - default, 0 - A2 pin, 00 - page (a8 a9), 0 - write|read
-#define IIC_2_ADDR 0b10101000 //second device
-
 uint8_t buf[] = {'H','e','l','l','o'};
-
 uint8_t rbuf[5] = {0};
-	
-uint8_t m_error = 0x00;
+
+#define ChipS1 PORTC2
+#define ChipS2 PORTC3
 
 int main(void)
 {
+	DDRC |= (1 << ChipS1) | (1 << ChipS2); //output chip selects
+	PORTC |= (1 << ChipS1) | (1 << ChipS2); //set high levels
+	
+	
+	//Write 1 byte
 
-	TWI_Init();
+	PORTC &= ~(1 << ChipS1); //chip select 1, low
+	SPI_MasterInit(); //master
 	
-	//Write
+	SPI_MasterTransmit(0b00000110); //set write enable
 	
-	EE_InitMasterWrite(IIC_2_ADDR, 0x00);
-	for(uint8_t i=0; i<5; i++){
-		if(EE_WriteByte(buf[i]) != 0x00) {
-			m_error = 0x01;
-			break;
-		}
+	SPI_MasterTransmit(0b00000010); //write command
+	SPI_MasterTransmit(0x00); //set address to write, 16 bit
+	SPI_MasterTransmit(0x00);
+	
+	SPI_MasterTransmit('K'); //insert 1 byte
+	
+	PORTC |= (1 << ChipS1); //end transmission, high
+	
+	//Write 5 byte (64 byte max page, for more - new transmit)
+	
+	PORTC &= ~(1 << ChipS1); //chip select 1, low
+	SPI_MasterInit(); //master
+	
+	SPI_MasterTransmit(0b00000110); //set write enable
+	
+	SPI_MasterTransmit(0b00000010); //write command
+	SPI_MasterTransmit(0x00); //set address to write, 16 bit
+	SPI_MasterTransmit(0x00);
+	
+	for(uint8_t i = 0; i<5; i++){
+		SPI_MasterTransmit(buf[i]); //send byte
 	}
-	EE_Stop();
 	
-	if(m_error != 0x00){
-		//error
-		
-		m_error = 0x00;
+	PORTC |= (1 << ChipS1); //end transmission, high
+	
+	//Read 1 byte
+	
+	PORTC &= ~(1 << ChipS1); //chip select 1, low
+	SPI_MasterInit(); //master
+	
+	SPI_MasterTransmit(0b00000011); //read command
+	SPI_MasterTransmit(0x00); //set address to read, 16 bit
+	SPI_MasterTransmit(0x00);
+
+	rbuf[0] = SPI_MasterReceive(); //read byte
+	
+	PORTC |= (1 << ChipS1); //end transmission, high
+
+	//Read 5 byte
+	
+	PORTC &= ~(1 << ChipS1); //chip select 1, low
+	SPI_MasterInit(); //master
+	
+	SPI_MasterTransmit(0b00000011); //read command
+	SPI_MasterTransmit(0x00); //set address to read, 16 bit
+	SPI_MasterTransmit(0x00);
+
+	for(uint8_t i = 0; i<5; i++){
+		buf[i] = SPI_MasterReceive(); //read byte
 	}
 	
-	//EE_ByteWrite(IIC_1_ADDR, 0x00, 'K');
-	
-	for (uint16_t i=0; i<55000; i++) __asm__ __volatile__ ("nop"); //synhro
-	__asm__ __volatile__ ("nop");
-	
-	
-	//Read
-	
-	//rbuf[0] = EE_RandomRead(IIC_1_ADDR, 0x00); //one byte
-	
-	rbuf[0] = EE_RandomRead(IIC_2_ADDR, 0x00); //first byte, set origin address
-	EE_InitMasterReadPage(IIC_2_ADDR);
-	for (uint8_t i=1; i<5-1; i++)
-	{
-		rbuf[i] = EE_ReadByte();
-		if(EE_ReadStatus() == 0x01) {
-			m_error = 0x01;
-			break;
-		}
-	}
-	if(m_error != 0x00){
-		EE_Stop();
-		m_error = 0x00;
-	}
-	else{
-		rbuf[4] = EE_ReadLastByte();
-		EE_Stop();
-	}
+	PORTC |= (1 << ChipS1); //end transmission, high
 
     /* Replace with your application code */
     while (1) 
